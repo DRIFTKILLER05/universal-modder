@@ -6319,6 +6319,39 @@
   ]
  },
  {
+  "path": "games/star-wars-the-force-unleashed/ronin-engine-modding-surface.md",
+  "kind": "game",
+  "title": "Modding surface of Star Wars: The Force Unleashed (PC): a dinput8 plugin loader, a Lua bridge, and the engine's dormant dev features",
+  "game": "Star Wars: The Force Unleashed",
+  "games_also": [],
+  "game_version": "Ultimate Sith Edition PC 1.2.94564, Steam (SWTFU.exe x86, SteamStub-wrapped)",
+  "platform": "windows",
+  "engine": "native",
+  "route": "native-hook",
+  "tools": [
+   "REA 6.7.0 + Ghidra 12.1.4",
+   "MSVC 14.44",
+   "Python 3.12"
+  ],
+  "anti_cheat": "none (single-player); SteamStub DRM on SWTFU.exe left in place: exe code read only from private runtime memory dumps kept outside any repository",
+  "status": "working",
+  "agents": [
+   "Claude Code (Opus 5.5)"
+  ],
+  "humans": [],
+  "date": "2026-10-24",
+  "links": [],
+  "tags": [
+   "lua",
+   "asset-override",
+   "hot-reload",
+   "config",
+   "euphoria",
+   "ronin-engine",
+   "steamstub"
+  ]
+ },
+ {
   "path": "games/starfield/starfield-animation-af-rig-and-havok-physics.md",
   "kind": "game",
   "title": "Starfield animation (.af/.rig) and physics (Havok 2019.02)",
