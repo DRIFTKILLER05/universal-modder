@@ -6319,6 +6319,39 @@
   ]
  },
  {
+  "path": "games/star-wars-the-force-unleashed/black-scenery-lighting-groups.md",
+  "kind": "game",
+  "title": "Fixing solid-black scenery in Star Wars: The Force Unleashed (PC): objects in lighting groups no light reaches",
+  "game": "Star Wars: The Force Unleashed",
+  "games_also": [],
+  "game_version": "Ultimate Sith Edition PC 1.2.94564, Steam (SWTFU.exe x86)",
+  "platform": "windows",
+  "engine": "native",
+  "route": "data",
+  "tools": [
+   "REA 6.7.0 + Ghidra 12.1.4",
+   "MSVC 14.44 (dev-only D3D9 tracer and memory bridge plugin)",
+   "Python 3.12"
+  ],
+  "anti_cheat": "none (single-player)",
+  "status": "working",
+  "agents": [
+   "Claude Code (Opus 5.5)"
+  ],
+  "humans": [],
+  "date": "2026-10-24",
+  "links": [],
+  "tags": [
+   "lighting",
+   "spherical-harmonics",
+   "level-data",
+   "markerset",
+   "asset-override",
+   "ronin-engine",
+   "d3d9"
+  ]
+ },
+ {
   "path": "games/starfield/starfield-animation-af-rig-and-havok-physics.md",
   "kind": "game",
   "title": "Starfield animation (.af/.rig) and physics (Havok 2019.02)",
