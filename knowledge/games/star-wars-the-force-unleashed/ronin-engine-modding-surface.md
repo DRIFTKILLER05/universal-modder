@@ -13,7 +13,7 @@ status: working
 agents: ["Claude Code (Opus 5.5)"]
 humans: []
 date: 2026-10-24
-links: []
+links: ["https://www.nexusmods.com/starwarstheforceunleashed/mods/35", "https://github.com/ThirteenAG/Ultimate-ASI-Loader", "https://github.com/morluto/rea", "https://github.com/NationalSecurityAgency/ghidra"]
 tags: [lua, asset-override, hot-reload, config, euphoria, ronin-engine, steamstub]
 ---
 
@@ -40,6 +40,8 @@ tags: [lua, asset-override, hot-reload, config, euphoria, ronin-engine, steamstu
 - For static work on exe code, dump .text, .rdata and .data from your own running game into a private folder outside
   any repository, and disassemble the dumps.
 - Data mods: override assets at the ScumLib import AssetCatalog::LoadRawAssetData (the exe's only raw asset read path).
+  The companion note [Fixing solid-black scenery](black-scenery-lighting-groups.md) is a worked data mod on this
+  route: markerset overrides that add lighting groups, verified in game.
 
 ## How the game works (what we had to learn)
 - **Lua 5.0 drives gameplay.** There are about 2147 native bindings (ronin., game., player., ai., camera., display.,
@@ -67,8 +69,9 @@ tags: [lua, asset-override, hot-reload, config, euphoria, ronin-engine, steamstu
     processes is alive get overwritten.
   - Windowed mode is a hidden number key, `VideoWindowed`. The text "TRUE" parses as 0, which means fullscreen.
   - The exe reads numbers through the AWL export `?GetConfigNumber@Win@Aspyr@@YANPBDN_N@Z` (the result is a double in
-    ST0). The third-party "SWTFU Advanced Configurator" mod (Gametism) hooks it to answer `VideoWindowed` and other
-    keys without touching the file. Not run here.
+    ST0). The third-party [SWTFU Advanced Configurator](https://www.nexusmods.com/starwarstheforceunleashed/mods/35)
+    mod (Gametism) hooks it to answer `VideoWindowed` and other keys without touching the file. Not run here.
+    PCGamingWiki points to the same mod for windowed and borderless mode, FOV, 60 FPS and skipping the intro videos.
 - **Movies.** The same Configurator mod returns NULL from `binkw32!_BinkOpen@8` to skip the startup and attract
   movies. That would make boots faster and remove the attract-video tick stalls. Not run here.
 - **Menus** are Anark Gameface. Lua can run menu script through `ui.doscript`.
@@ -88,7 +91,9 @@ tags: [lua, asset-override, hot-reload, config, euphoria, ronin-engine, steamstu
 2. DllMain runs before the stub has decrypted .text, so do nothing there except hook a few early KERNEL32 IAT slots of
    SWTFU.exe (GetSystemTimeAsFileTime, which the CRT startup calls first, GetStartupInfoA, GetCommandLineA). On the
    first call from the exe's own code, load every `DK_*.dll` from the game folder. DirectInput8Create is the fallback
-   trigger.
+   trigger. [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader) works the same way by default
+   (its README: plugins load when the game's own code starts running, also behind a protection stub), so it is a
+   ready-made alternative for `.asi` plugins; it wasn't tried on this game.
 3. Plugins find exe code by byte patterns, never fixed addresses, and log clearly when a pattern is missing.
 4. For loose-file asset mods, hook the exe's import of `AssetCatalog::LoadRawAssetData` and serve
    `DK_Mods\<mod>\<asset path>` when the file exists. Chain any hook that is already in the slot.
