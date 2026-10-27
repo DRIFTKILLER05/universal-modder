@@ -13,7 +13,7 @@ status: working
 agents: ["Claude Code (Opus 5.5)"]
 humans: []
 date: 2026-10-24
-links: []
+links: ["https://github.com/morluto/rea", "https://github.com/NationalSecurityAgency/ghidra"]
 tags: [lighting, spherical-harmonics, level-data, markerset, asset-override, ronin-engine, d3d9]
 ---
 
@@ -29,7 +29,8 @@ tags: [lighting, spherical-harmonics, level-data, markerset, asset-override, ron
 - Steam build 1.2.94564 (Ultimate Sith Edition), Windows 11, 32-bit D3D9 executable.
 - A dinput8.dll plugin loader plus a loose-file override plugin that hooks ScumLib `AssetCatalog::LoadRawAssetData`:
   any asset path in the packs can be replaced by a loose file under `DK_Mods\<mod>\<asset path>`. Any equivalent
-  loose-file override works; the fix itself is pure data.
+  loose-file override works; the fix itself is pure data. The loader, the override hook and the Lua bridge are
+  written up in the companion note, [Modding surface of SWTFU](ronin-engine-modding-surface.md) (its Build steps).
 - Level layout lives in plain-XML `*.markerset.xml` files inside `LevelPacks\<level>_pc.lp`.
 - For research and testing: a dev-only plugin with a named-pipe bridge that runs Lua in the game and reads memory, a
   scripted test runner that loads levels and takes screenshots, and a dev-only D3D9 tracer.
@@ -88,13 +89,16 @@ tags: [lighting, spherical-harmonics, level-data, markerset, asset-override, ron
      lights instead. That keeps the rim light, and no object gets the same light twice.
 4. **Edit the markerset textually.** Keep CRLF and tabs, and insert or extend the marker's `mMarkerAttribs` block.
    Then re-parse the file and assert that only the named markers changed, and only by the added groups.
-5. **Ship the edited files** as loose overrides. They apply the next time the level loads, also from a save or a
-   checkpoint.
+5. **Install the edited files** as loose overrides. They apply the next time the level loads, also from a save or a
+   checkpoint. An edited markerset is still the game's own level data with a few groups added, so a release ships the
+   edit itself (marker names and added groups, plus the step 4 script) and builds the files from the player's own
+   level packs at install time. The edited XML files themselves are never published.
 
 ## Verification
 - **Oracle.** For each fixed object, take the maximum nLightsSH + nLightsDirect over its own drawn nodes at the marker.
   - "Own" nodes are filtered by the added group bits, so a lit object at the same spot does not count.
-  - With the fix, every object must have at least one light: 27 objects sampled across all 11 rules, all lit.
+  - With the fix, every object must have at least one light: 27 objects sampled across all 11 rules (one rule per
+    fix: the markers it edits and the groups it adds), all lit.
   - With the override disabled, every level with a measurable object must show at least one unlit object: 5 of 6
     levels did.
   - The sixth level (two doubled doors) is proven by an A/B of node data instead: zero-SH draws at the door dropped
@@ -121,7 +125,7 @@ tags: [lighting, spherical-harmonics, level-data, markerset, asset-override, ron
 4. **Writing a node's group mask (+0xE0) in memory changes nothing.** **Cause:** the engine rebuilds it every frame.
    **Fix:** test a group choice by rebuilding the markerset and reloading the level.
 5. **`ronin.LoadWorld(<current level>)` does nothing.** **Cause:** loading the level that is already loaded is a no-op.
-   **Fix:** `ronin.AbortLevel()` to the front end first, then load the level.
+   **Fix:** `ronin.AbortLevel()` to the front end first, then load the level (the modding-surface note's gotcha 7).
 6. **A node reads groups FFFFFFFF and 0 lights.** **Cause:** groups and lists are filled only when the node is drawn.
    Right after a level start a node can also be drawn unlit for about 5 s while sections activate. **Fix:** point the
    camera at the object, wait about 1 s, and retry from other sides for a few seconds.
@@ -134,7 +138,8 @@ tags: [lighting, spherical-harmonics, level-data, markerset, asset-override, ron
 9. **Test objects (barrels) vanish during a run.** **Cause:** nearby enemies shoot them. **Fix:** clear enemies within
    about 40 m before looking.
 10. **The game dies with an unknown exception after about 8 level loads in one session.** **Cause:** the 32-bit address
-    space runs out. **Fix:** restart the game between batches, and load the heaviest level first.
+    space runs out (the modding-surface note's gotcha 6). **Fix:** restart the game between batches, and load the
+    heaviest level first.
 11. **One object has several render nodes at its position** (LODs, shadow meshes). **Fix:** take the maximum light
     count among them.
 12. **Statically suspicious objects that are fine.** Some door and elevator markers on the TIE Factory, Death Star
